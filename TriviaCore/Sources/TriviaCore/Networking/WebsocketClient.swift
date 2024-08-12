@@ -31,11 +31,11 @@ public struct WebsocketClient: LoggingContext, Sendable {
   
   public let loggingCategory: String
   
-  init(errorSourceId: String) {
+  public init(errorSourceId: String) {
     self.loggingCategory = errorSourceId
   }
   
-  var body: some ReducerOf<Self> {
+  public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case .task:
@@ -136,12 +136,10 @@ actor WebsocketClientActor: StaticLoggingContext {
     //            return
     //        }
     
-    var request = URLRequest(url: url)
+    let request = URLRequest(url: url)
     //        request.addValue("Bearer \(authToken)", forHTTPHeaderField: HTTPHeaderField.authorization.rawValue)
     
-    self.delegate = WebsocketDelegate(onClose: { [weak self] closureReason in
-      guard let self else { return }
-      
+    self.delegate = WebsocketDelegate(onClose: { closureReason in      
       print(closureReason.rawValue)
     })
     

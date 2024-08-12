@@ -1,5 +1,5 @@
 {
-  "originHash" : "eb4045e1bfd5ef9f3d279cbe2fe0c88d8b730443bc99ef7286a6d14981aae76d",
+  "originHash" : "fecb70974407b21d166a5e87218f56d25e0a15c5f7b3190707b8859fb78e25d8",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -116,6 +116,15 @@
       "state" : {
         "revision" : "b7c9a79f6f6b1fefb87d3e5a83a9c2fe7cdc9720",
         "version" : "1.5.0"
+      }
+    },
+    {
+      "identity" : "url",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/davidsteppenbeck/URL.git",
+      "state" : {
+        "revision" : "07f2bf851840ca9c824bc703338f7d472150b654",
+        "version" : "1.1.1"
       }
     },
     {

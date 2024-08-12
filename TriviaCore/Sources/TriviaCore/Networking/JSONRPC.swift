@@ -2,10 +2,30 @@ import Foundation
 // Implementation of JSONRPC 2.0 spec
 // https://www.jsonrpc.org/specification
 
+public enum IncomingMessageType: Decodable, Equatable {
+  case request
+  case response
+  
+  enum CodingKeys: CodingKey {
+    case method
+  }
+  
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: IncomingMessageType.CodingKeys.self)
+    // We can check if an incoming message is a request or response by looking for the method field
+    if try container.decodeIfPresent(String.self, forKey: .method) != nil {
+      self = .request
+    } else {
+      self = .response
+    }
+  }
+}
+/// Response messages are always in response to a request, and their ID will always match the ID of the request
 public struct ResponseMessage<
   Result: Codable & Equatable
 >: Codable, Equatable {
   public let jsonrpc: String
+  /// The ID will always match the ID of the request
   public let id: UUID
   public let responseType: ResponseType<Result>
   
@@ -16,31 +36,37 @@ public struct ResponseMessage<
     case result
   }
   
+  enum Errors: Error {
+    case invalidMessage
+  }
+  
   public init(from decoder: any Decoder) throws {
-    let container: KeyedDecodingContainer<ResponseMessage<Result>.CodingKeys> = try decoder.container(keyedBy: ResponseMessage<Result>.CodingKeys.self)
-    self.jsonrpc = try container.decode(String.self, forKey: ResponseMessage<Result>.CodingKeys.jsonrpc)
-    self.id = try container.decode(UUID.self, forKey: ResponseMessage<Result>.CodingKeys.id)
-    if let error = try container.decodeIfPresent(MessageError.self, forKey: ResponseMessage<Result>.CodingKeys.error) {
+    let container = try decoder.container(keyedBy: ResponseMessage<Result>.CodingKeys.self)
+    self.jsonrpc = try container.decode(String.self, forKey: .jsonrpc)
+    self.id = try container.decode(UUID.self, forKey: .id)
+    if let error = try container.decodeIfPresent(MessageError.self, forKey: .error) {
       self.responseType = .error(error)
-    } else if let result = try container.decodeIfPresent(Result.self, forKey: ResponseMessage<Result>.CodingKeys.result) {
-      self.responseType = .resonse(result)
+    } else if let result = try container.decodeIfPresent(Result.self, forKey: .result) {
+      self.responseType = .response(result)
+    } else {
+      throw Errors.invalidMessage
     }
   }
   
   public func encode(to encoder: any Encoder) throws {
     var container: KeyedEncodingContainer<ResponseMessage<Result>.CodingKeys> = encoder.container(keyedBy: ResponseMessage<Result>.CodingKeys.self)
-    try container.encode(jsonrpc, forKey: ResponseMessage<Result>.CodingKeys.jsonrpc)
-    try container.encode(id, forKey: ResponseMessage<Result>.CodingKeys.id)
+    try container.encode(jsonrpc, forKey: .jsonrpc)
+    try container.encode(id, forKey: .id)
     if case .error(let error) = responseType {
-      try container.encode(error, forKey: ResponseMessage<Result>.CodingKeys.error)
-    } else if case .resonse(let result) = responseType {
-      try container.encode(result, forKey: ResponseMessage<Result>.CodingKeys.result)
+      try container.encode(error, forKey: .error)
+    } else if case .response(let result) = responseType {
+      try container.encode(result, forKey: .result)
     }
   }
 }
 
 public enum ResponseType<Result: Codable & Equatable>: Codable, Equatable {
-  case resonse(Result)
+  case response(Result)
   case error(MessageError)
 }
 
@@ -69,6 +95,7 @@ public struct RequestMessage<Params: Codable & Equatable>: Codable, Equatable {
 
 public struct EmptyParams: Codable, Equatable {}
 
+/// Parsed error codes for you convenience
 public enum ErrorCode: RawRepresentable, Codable, Equatable {
   /// Invalid JSON was received by the server.
   /// An error occurred on the server while parsing the JSON text.

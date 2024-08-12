@@ -1,17 +1,14 @@
-//
-//  TriviaApp.swift
-//  Trivia
-//
-//  Created by fnord on 6/28/24.
-//
-
 import SwiftUI
+import ComposableArchitecture
+import TriviaCore
 
 @main
 struct TriviaApp: App {
-    var body: some Scene {
-        WindowGroup {
-            TriviaListView()
-        }
+  let store = Store(initialState: TriviaListReducer.State(), reducer: { TriviaListReducer() })
+  
+  var body: some Scene {
+    WindowGroup {
+      TriviaListView(store: store.scope(state: \.viewModel, action: \.viewModel))
     }
+  }
 }

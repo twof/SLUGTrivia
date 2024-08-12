@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		241695912C40DBE1000466D2 /* TeamRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241695902C40DBD9000466D2 /* TeamRegistration.swift */; };
 		248C60C52C2F1C3300EF0C7D /* TriviaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248C60C42C2F1C3300EF0C7D /* TriviaApp.swift */; };
 		248C60C72C2F1C3300EF0C7D /* TriviaListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248C60C62C2F1C3300EF0C7D /* TriviaListView.swift */; };
 		248C60C92C2F1C3400EF0C7D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 248C60C82C2F1C3400EF0C7D /* Assets.xcassets */; };
@@ -36,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		241695902C40DBD9000466D2 /* TeamRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamRegistration.swift; sourceTree = "<group>"; };
 		248C60C12C2F1C3300EF0C7D /* Trivia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trivia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		248C60C42C2F1C3300EF0C7D /* TriviaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaApp.swift; sourceTree = "<group>"; };
 		248C60C62C2F1C3300EF0C7D /* TriviaListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaListView.swift; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 		248C60C32C2F1C3300EF0C7D /* Trivia */ = {
 			isa = PBXGroup;
 			children = (
+				241695902C40DBD9000466D2 /* TeamRegistration.swift */,
 				248C60C42C2F1C3300EF0C7D /* TriviaApp.swift */,
 				248C60C62C2F1C3300EF0C7D /* TriviaListView.swift */,
 				248C60C82C2F1C3400EF0C7D /* Assets.xcassets */,
@@ -277,6 +280,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				248C60C72C2F1C3300EF0C7D /* TriviaListView.swift in Sources */,
+				241695912C40DBE1000466D2 /* TeamRegistration.swift in Sources */,
 				248C60C52C2F1C3300EF0C7D /* TriviaApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
