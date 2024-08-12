@@ -84,38 +84,25 @@ actor RoundRepository: CRUDRepository {
   }
   
   func delete(id: UUID) async throws -> Bool {
-    let stream = try await client.query(
-      """
-      DELETE FROM rounds
-      WHERE id = \(id);
-      """
-    )
-    
-    for try await row in stream {
-      print(row)
+    try await client.withConnection { [logger] connection in
+      let result = try await connection.query(
+        """
+        DELETE FROM rounds
+        WHERE id = \(id);
+        """,
+        logger: logger
+      ).get()
+      
+      return result.metadata.rows == 1
     }
-    
-//    for try await (id, order, title) in stream.decode((UUID, Int, String).self, context: .default) {
-//      return Round(id: id, title: title, order: order)
-//    }
-    
-    return true
   }
   
   func deleteAll() async throws {
-    let stream = try await client.query(
+    try await client.query(
       """
       DELETE FROM rounds;
       """
     )
-    
-    for try await row in stream {
-      print(row)
-    }
-    
-    //    for try await (id, order, title) in stream.decode((UUID, Int, String).self, context: .default) {
-    //      return Round(id: id, title: title, order: order)
-    //    }
   }
 }
 
