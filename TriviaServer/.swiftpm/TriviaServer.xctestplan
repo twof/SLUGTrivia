@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "BED5A6C7-21D1-4926-A8CE-79177DB67256",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:",
+      "identifier" : "Server",
+      "name" : "Server"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "IntegrationTests",
+        "name" : "IntegrationTests"
+      }
+    }
+  ],
+  "version" : 1
+}

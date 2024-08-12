@@ -41,7 +41,7 @@ actor RoundRepository: CRUDRepository {
       """
       SELECT id, "order", title 
       FROM rounds
-      WHERE id = '\(id.uuidString)';
+      WHERE id = \(id);
       """
     )
     
@@ -70,8 +70,8 @@ actor RoundRepository: CRUDRepository {
     let stream = try await client.query(
       """
       UPDATE rounds
-      SET "order" = \(model.order), title = '\(model.title)'
-      WHERE id = '\(model.id.uuidString)'
+      SET "order" = \(model.order), title = \(model.title)
+      WHERE id = \(model.id)
       RETURNING id, "order", title;
       """
     )
@@ -87,7 +87,7 @@ actor RoundRepository: CRUDRepository {
     let stream = try await client.query(
       """
       DELETE FROM rounds
-      WHERE id = '\(id.uuidString)';
+      WHERE id = \(id);
       """
     )
     
@@ -119,13 +119,13 @@ actor RoundRepository: CRUDRepository {
   }
 }
 
-struct Round: Identifiable {
+struct Round: Identifiable, Equatable {
   let id: UUID
   let title: String
   let order: Int
 }
 
-struct RoundFields: Sendable {
+struct RoundFields: Sendable, Equatable {
   let title: String
   let order: Int
 }

@@ -15,27 +15,121 @@ struct TestRoundRepository {
   
   @Test
   func get() async throws {
-    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    try await repoHarness { repository in
+      let createdRounds = try await (0..<3).asyncMap { index in
+        let testFields = RoundFields(title: "Test \(index)", order: index)
+        return try await repository.create(testFields)
+      }
+      
+      guard let firstRound = createdRounds.first else {
+        Issue.record("No rounds created")
+        return
+      }
+      
+      do {
+        guard let fetchedRound = try await repository.get(id: firstRound.id) else {
+          Issue.record("Failed to fetch round")
+          return
+        }
+        
+        #expect(fetchedRound == firstRound)
+      } catch {
+        print(String(reflecting: error))
+        Issue.record("Failed to fetch round")
+      }
+    }
   }
   
   @Test
   func getAll() async throws {
-    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    try await repoHarness { repository in
+      let createdRounds = try await (0..<3).asyncMap { index in
+        let testFields = RoundFields(title: "Test \(index)", order: index)
+        return try await repository.create(testFields)
+      }
+      
+      do {
+        let fetchedRounds = try await repository.getAll()
+        
+        #expect(fetchedRounds == createdRounds)
+      } catch {
+        print(String(reflecting: error))
+        Issue.record("Failed to fetch round")
+      }
+    }
   }
   
   @Test
   func update() async throws {
-    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    try await repoHarness { repository in
+      let createdRounds = try await (0..<3).asyncMap { index in
+        let testFields = RoundFields(title: "Test \(index)", order: index)
+        return try await repository.create(testFields)
+      }
+      
+      guard let firstRound = createdRounds.first else {
+        Issue.record("No rounds created")
+        return
+      }
+      
+      do {
+        let newRound = Round(id: firstRound.id, title: "New title", order: firstRound.order)
+        let updatedRound = try await repository.update(newRound)
+        
+        #expect(updatedRound == newRound)
+      } catch {
+        print(String(reflecting: error))
+        Issue.record("Failed to fetch round")
+      }
+    }
   }
   
   @Test
   func delete() async throws {
-    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    try await repoHarness { repository in
+      let createdRounds = try await (0..<3).asyncMap { index in
+        let testFields = RoundFields(title: "Test \(index)", order: index)
+        return try await repository.create(testFields)
+      }
+      
+      guard let firstRound = createdRounds.first else {
+        Issue.record("No rounds created")
+        return
+      }
+      
+      do {
+        let isDeleted = try await repository.delete(id: firstRound.id)
+        
+        #expect(isDeleted)
+        
+        let nonExistingRound: Round? = try await repository.get(id: firstRound.id)
+        #expect(nonExistingRound == nil)
+      } catch {
+        print(String(reflecting: error))
+        Issue.record("Failed to fetch round")
+      }
+    }
   }
   
   @Test
   func deleteAll() async throws {
-    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    try await repoHarness { repository in
+      let _ = try await (0..<3).asyncMap { index in
+        let testFields = RoundFields(title: "Test \(index)", order: index)
+        return try await repository.create(testFields)
+      }
+      
+      do {
+        try await repository.deleteAll()
+        
+        
+        let existingRounds: [Round] = try await repository.getAll()
+        #expect(existingRounds.isEmpty)
+      } catch {
+        print(String(reflecting: error))
+        Issue.record("Failed to fetch round")
+      }
+    }
   }
   
   private func repoHarness(operation: @Sendable @escaping (RoundRepository) async throws -> Void) async throws {
@@ -55,22 +149,8 @@ struct TestRoundRepository {
 
     try await operation(repo)
     
-    clientTask.cancel()
+    try await repo.deleteAll()
     
-//    try await withThrowingTaskGroup(of: Void.self) { group in
-//      let repo = RoundRepository(client: client, logger: Logger(label: "test-repo"))
-//      group.addTask {
-//        await client.run()
-//      }
-//      
-//      try await repo.createTable()
-//      try await repo.deleteAll()
-//      
-//      try await operation(repo)
-//      
-//      for try await _ in group {
-//        group.cancelAll()
-//      }
-//    }
+    clientTask.cancel()
   }
 }
