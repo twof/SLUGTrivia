@@ -31,7 +31,7 @@ func buildApplication(_ args: some AppArguments) async throws -> some Applicatio
     postgresClient = client
   }
   // add Todos API
-  TodoController(repository: TodoMemoryRepository()).addRoutes(to: router.group("todos"))
+//  TodoController(repository: TodoMemoryRepository()).addRoutes(to: router.group("todos"))
   // create application
   var app = Application(
     router: router,
