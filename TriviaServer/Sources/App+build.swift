@@ -25,7 +25,7 @@ func buildApplication(_ args: some AppArguments) async throws -> some Applicatio
   var postgresClient: PostgresClient?
   if !args.inMemoryTesting {
     let client = PostgresClient(
-      configuration: .init(host: "localhost", username: "todos", password: "todos", database: "hummingbird", tls: .disable),
+      configuration: .init(host: "localhost", username: "postgres", password: "todos", database: "hummingbird", tls: .disable),
       backgroundLogger: logger
     )
     postgresClient = client

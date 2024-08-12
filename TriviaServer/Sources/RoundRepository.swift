@@ -12,7 +12,7 @@ actor RoundRepository: CRUDRepository {
   
   func createTable() async throws {
     try await client.query("""
-      CREATE TABLE IF NOT EXISTS todos (
+      CREATE TABLE IF NOT EXISTS rounds (
           "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
           "title" text NOT NULL,
           "order" integer NOT NULL
@@ -24,7 +24,7 @@ actor RoundRepository: CRUDRepository {
     let stream = try await client.query(
       """
       INSERT INTO rounds ("order", title)
-      VALUES (1, 'First Round')
+      VALUES (\(model.order), \(model.title))
       RETURNING id, "order", title;
       """
     )
