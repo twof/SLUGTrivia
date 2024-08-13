@@ -14,8 +14,8 @@ actor TeamRepository: CRUDRepository {
     try await client.query(
       """
       CREATE TABLE IF NOT EXISTS teams (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      name TEXT NOT NULL
+        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "name" TEXT NOT NULL
       );
       """
     )
@@ -104,6 +104,24 @@ actor TeamRepository: CRUDRepository {
       DELETE FROM teams;
       """
     )
+  }
+  
+  // TODO: Test this
+  func getScore(id: UUID) async throws -> Int? {
+    let stream = try await client.query(
+      """
+      SELECT COUNT(*) 
+      FROM answers 
+      WHERE team_id = \(id) 
+      AND is_correct = TRUE;
+      """
+    )
+    
+    for try await (pointCount) in stream.decode((Int).self, context: .default) {
+      return pointCount
+    }
+    
+    return nil
   }
 }
 

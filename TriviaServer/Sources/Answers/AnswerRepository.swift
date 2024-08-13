@@ -13,12 +13,11 @@ actor AnswerRepository: CRUDRepository {
   func createTable() async throws {
     try await client.query("""
       CREATE TABLE IF NOT EXISTS answers (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        question_id UUID NOT NULL,
-        team_id UUID NOT NULL,
-        text TEXT NOT NULL,
-        FOREIGN KEY (question_id) REFERENCES questions(id),
-        FOREIGN KEY (team_id) REFERENCES teams(id)
+        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "question_id" UUID NOT NULL REFERENCES questions,
+        "team_id" UUID NOT NULL REFERENCES teams,
+        "text" TEXT NOT NULL,
+        "is_correct" BOOL NOT NULL DEFAULT FALSE
       );
     """)
   }
@@ -28,12 +27,12 @@ actor AnswerRepository: CRUDRepository {
       """
       INSERT INTO answers (question_id, team_id, text)
       VALUES (\(model.questionId), \(model.teamId), \(model.text)
-      RETURNING id, question_id, team_id, text;
+      RETURNING id, question_id, team_id, text, is_correct;
       """
     )
     
-    for try await (id, questionId, teamId, text) in stream.decode((UUID, UUID, UUID, String).self, context: .default) {
-      return Answer(id: id, questionId: questionId, teamId: teamId, text: text)
+    for try await (id, questionId, teamId, text, isCorrect) in stream.decode((UUID, UUID, UUID, String, Bool).self, context: .default) {
+      return Answer(id: id, questionId: questionId, teamId: teamId, text: text, isCorrect: isCorrect)
     }
     
     throw RepositoryError.creationFailed
@@ -48,8 +47,8 @@ actor AnswerRepository: CRUDRepository {
       """
     )
     
-    for try await (id, questionId, teamId, text) in stream.decode((UUID, UUID, UUID, String).self, context: .default) {
-      return Answer(id: id, questionId: questionId, teamId: teamId, text: text)
+    for try await (id, questionId, teamId, text, isCorrect) in stream.decode((UUID, UUID, UUID, String, Bool).self, context: .default) {
+      return Answer(id: id, questionId: questionId, teamId: teamId, text: text, isCorrect: isCorrect)
     }
     
     return nil
@@ -64,8 +63,8 @@ actor AnswerRepository: CRUDRepository {
     )
     
     return try await stream.collect().map { row in
-      let (id, questionId, teamId, text) = try row.decode((UUID, UUID, UUID, String).self, context: .default)
-      return Answer(id: id, questionId: questionId, teamId: teamId, text: text)
+      let (id, questionId, teamId, text, isCorrect) = try row.decode((UUID, UUID, UUID, String, Bool).self, context: .default)
+      return Answer(id: id, questionId: questionId, teamId: teamId, text: text, isCorrect: isCorrect)
     }
   }
   
@@ -79,8 +78,8 @@ actor AnswerRepository: CRUDRepository {
       """
     )
     
-    for try await (id, questionId, teamId, text) in stream.decode((UUID, UUID, UUID, String).self, context: .default) {
-      return Answer(id: id, questionId: questionId, teamId: teamId, text: text)
+    for try await (id, questionId, teamId, text, isCorrect) in stream.decode((UUID, UUID, UUID, String, Bool).self, context: .default) {
+      return Answer(id: id, questionId: questionId, teamId: teamId, text: text, isCorrect: isCorrect)
     }
     
     return nil
@@ -101,7 +100,7 @@ actor AnswerRepository: CRUDRepository {
   }
   
   func deleteAll() async throws {
-    let stream = try await client.query(
+    try await client.query(
       """
       DELETE FROM answers;
       """
@@ -114,10 +113,12 @@ struct Answer: Codable, Identifiable, Equatable {
   let questionId: UUID
   let teamId: UUID
   let text: String
+  let isCorrect: Bool
 }
 
 struct AnswerFields: Codable, Equatable {
   let questionId: UUID
   let teamId: UUID
   let text: String
+  let isCorrect: Bool
 }

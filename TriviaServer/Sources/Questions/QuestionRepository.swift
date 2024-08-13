@@ -13,12 +13,11 @@ actor QuestionRepository: CRUDRepository {
   func createTable() async throws {
     try await client.query("""
       CREATE TABLE IF NOT EXISTS questions (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        round_id UUID NOT NULL,
+        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "round_id" UUID NOT NULL REFERENCES rounds(id),
         "order" INTEGER NOT NULL,
-        text TEXT NOT NULL,
-        correct_answer TEXT NOT NULL,
-        FOREIGN KEY (round_id) REFERENCES rounds(id)
+        "text" TEXT NOT NULL,
+        "correct_answer" TEXT NOT NULL
       );
     """)
   }
