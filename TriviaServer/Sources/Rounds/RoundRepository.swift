@@ -104,6 +104,14 @@ actor RoundRepository: CRUDRepository {
       """
     )
   }
+  
+  func dropTable() async throws {
+    try await client.query(
+      """
+      DROP TABLE IF EXISTS rounds;
+      """
+    )
+  }
 }
 
 struct Round: Identifiable, Equatable {

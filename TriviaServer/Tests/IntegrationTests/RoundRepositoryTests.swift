@@ -141,17 +141,26 @@ struct TestRoundRepository {
     
     let repo = RoundRepository(client: client, logger: Logger(label: "test-repo"))
     
-    let clientTask = Task {
-      await client.run()
+    await withTaskGroup(of: Void.self) { group in
+      group.addTask {
+        await client.run()
+      }
+      
+      do {
+        try await repo.dropTable()
+        
+        try await repo.createTable()
+        
+        try await operation(repo)
+        
+        try await repo.dropTable()
+      } catch {
+        Issue.record("Failed to setup database: \(String(reflecting: error))")
+        group.cancelAll()
+        return
+      }
+      
+      group.cancelAll()
     }
-    
-    try await repo.createTable()
-    try await repo.deleteAll()
-
-    try await operation(repo)
-    
-    try await repo.deleteAll()
-    
-    clientTask.cancel()
   }
 }

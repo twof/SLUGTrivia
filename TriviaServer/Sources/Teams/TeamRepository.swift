@@ -106,7 +106,14 @@ actor TeamRepository: CRUDRepository {
     )
   }
   
-  // TODO: Test this
+  func dropTable() async throws {
+    try await client.query(
+      """
+      DROP TABLE IF EXISTS teams;
+      """
+    )
+  }
+  
   func getScore(id: UUID) async throws -> Int? {
     let stream = try await client.query(
       """

@@ -26,7 +26,7 @@ actor QuestionRepository: CRUDRepository {
     let stream = try await client.query(
       """
       INSERT INTO questions (round_id, "order", text, correct_answer)
-      VALUES (\(model.roundId), \(model.order), \(model.text), \(model.correctAnswer)
+      VALUES (\(model.roundId), \(model.order), \(model.text), \(model.correctAnswer))
       RETURNING id, round_id, "order", text, correct_answer;
       """
     )
@@ -105,6 +105,14 @@ actor QuestionRepository: CRUDRepository {
     try await client.query(
       """
       DELETE FROM questions;
+      """
+    )
+  }
+  
+  func dropTable() async throws {
+    try await client.query(
+      """
+      DROP TABLE IF EXISTS questions;
       """
     )
   }

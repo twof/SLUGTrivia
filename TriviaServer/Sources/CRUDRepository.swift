@@ -8,4 +8,5 @@ protocol CRUDRepository {
   func update(_ model: Model) async throws -> Model?
   func delete(id: Model.ID) async throws -> Bool
   func deleteAll() async throws
+  func dropTable() async throws
 }

@@ -12,7 +12,7 @@ actor AnswerRepository: CRUDRepository {
   
   func createTable() async throws {
     try await client.query("""
-      CREATE TABLE IF NOT EXISTS answers (
+      CREATE TABLE answers (
         "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         "question_id" UUID NOT NULL REFERENCES questions,
         "team_id" UUID NOT NULL REFERENCES teams,
@@ -25,8 +25,8 @@ actor AnswerRepository: CRUDRepository {
   func create(_ model: AnswerFields) async throws -> Answer {
     let stream = try await client.query(
       """
-      INSERT INTO answers (question_id, team_id, text)
-      VALUES (\(model.questionId), \(model.teamId), \(model.text)
+      INSERT INTO answers (question_id, team_id, text, is_correct)
+      VALUES (\(model.questionId), \(model.teamId), \(model.text), \(model.isCorrect))
       RETURNING id, question_id, team_id, text, is_correct;
       """
     )
@@ -41,7 +41,7 @@ actor AnswerRepository: CRUDRepository {
   func get(id: UUID) async throws -> Answer? {
     let stream = try await client.query(
       """
-      SELECT id, question_id, team_id, text
+      SELECT id, question_id, team_id, text, is_correct
       FROM answers
       WHERE id = \(id);
       """
@@ -57,7 +57,7 @@ actor AnswerRepository: CRUDRepository {
   func getAll() async throws -> [Answer] {
     let stream = try await client.query(
       """
-      SELECT id, question_id, team_id, text
+      SELECT id, question_id, team_id, text, is_correct
       FROM answers;
       """
     )
@@ -72,9 +72,10 @@ actor AnswerRepository: CRUDRepository {
     let stream = try await client.query(
       """
       UPDATE answers
-      SET text = \(model.text)
+      SET text = \(model.text),
+      is_correct = \(model.isCorrect)
       WHERE id = \(model.id)
-      RETURNING id, question_id, team_id, text;
+      RETURNING id, question_id, team_id, text, is_correct;
       """
     )
     
@@ -103,6 +104,14 @@ actor AnswerRepository: CRUDRepository {
     try await client.query(
       """
       DELETE FROM answers;
+      """
+    )
+  }
+  
+  func dropTable() async throws {
+    try await client.query(
+      """
+      DROP TABLE IF EXISTS answers;
       """
     )
   }
