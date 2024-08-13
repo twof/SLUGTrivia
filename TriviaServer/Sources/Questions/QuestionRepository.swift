@@ -103,7 +103,7 @@ actor QuestionRepository: CRUDRepository {
   }
   
   func deleteAll() async throws {
-    let stream = try await client.query(
+    try await client.query(
       """
       DELETE FROM questions;
       """
